@@ -1,0 +1,242 @@
+.communication-header {
+  background: linear-gradient(
+    135deg,
+    #075985,
+    #087bb5
+  );
+
+  color: white;
+
+  padding: 20px 18px 23px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 15px;
+
+  border-radius: 0 0 25px 25px;
+
+  box-shadow:
+    0 8px 25px rgba(7,89,133,0.18);
+}
+
+.communication-header h1 {
+  font-size: 21px;
+  margin-bottom: 4px;
+}
+
+.communication-header p {
+  font-size: 11px;
+  opacity: 0.82;
+}
+
+.back-button {
+  width: 40px;
+  height: 40px;
+
+  border: none;
+
+  border-radius: 13px;
+
+  background: rgba(255,255,255,0.16);
+
+  color: white;
+
+  font-size: 23px;
+
+  cursor: pointer;
+}
+
+.communication-container {
+  width: 100%;
+  max-width: 650px;
+
+  margin: auto;
+
+  padding: 18px 16px 95px;
+}
+
+.communication-intro {
+  background: white;
+
+  border: 1px solid #e6edf5;
+
+  border-radius: 20px;
+
+  padding: 17px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  margin-bottom: 14px;
+}
+
+.intro-icon {
+  width: 48px;
+  height: 48px;
+
+  border-radius: 15px;
+
+  background: #e5f1ff;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 23px;
+}
+
+.communication-intro h2 {
+  font-size: 15px;
+
+  margin-bottom: 4px;
+}
+
+.communication-intro p {
+  color: #718096;
+
+  font-size: 11px;
+
+  line-height: 1.4;
+}
+
+.communication-option {
+  background: white;
+
+  border: 1px solid #e6edf5;
+
+  border-radius: 20px;
+
+  padding: 17px;
+
+  margin-bottom: 11px;
+
+  display: flex;
+
+  align-items: center;
+
+  gap: 13px;
+
+  cursor: pointer;
+
+  transition: 0.2s;
+}
+
+.communication-option:active {
+  transform: scale(0.98);
+}
+
+.option-icon {
+  width: 51px;
+  height: 51px;
+
+  border-radius: 16px;
+
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  font-size: 24px;
+
+  flex-shrink: 0;
+}
+
+.blue-icon {
+  background: #e5f1ff;
+}
+
+.green-icon {
+  background: #e2f8ef;
+}
+
+.purple-icon {
+  background: #eee8ff;
+}
+
+.orange-icon {
+  background: #fff0dc;
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-content h3 {
+  font-size: 15px;
+
+  margin-bottom: 5px;
+}
+
+.option-content p {
+  color: #718096;
+
+  font-size: 11px;
+
+  line-height: 1.4;
+
+  margin-bottom: 7px;
+}
+
+.coming-status {
+  display: inline-block;
+
+  background: #edf5fa;
+
+  color: #075985;
+
+  border-radius: 20px;
+
+  padding: 4px 8px;
+
+  font-size: 9px;
+
+  font-weight: 700;
+}
+
+.option-arrow {
+  color: #8a99aa;
+
+  font-size: 24px;
+}
+
+.communication-tip {
+  margin-top: 16px;
+
+  padding: 16px;
+
+  border-radius: 18px;
+
+  background: #eef8ff;
+
+  display: flex;
+
+  gap: 12px;
+
+  align-items: flex-start;
+}
+
+.tip-icon {
+  font-size: 20px;
+}
+
+.communication-tip strong {
+  font-size: 12px;
+}
+
+.communication-tip p {
+  color: #64748b;
+
+  font-size: 10px;
+
+  line-height: 1.5;
+
+  margin-top: 5px;
+}
