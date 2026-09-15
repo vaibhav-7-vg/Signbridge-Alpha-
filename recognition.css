@@ -1,17 +1,20 @@
-/* ================================
-   SIGN RECOGNITION
-   ================================ */
+/* =====================================================
+   SIGNBRIDGE AI — SIGN RECOGNITION
+   TWO-HAND ML INTERFACE
+   ===================================================== */
 
 body {
   background: #f5f8fc;
 }
 
 
-/* Header */
+/* =====================================================
+   HEADER
+   ===================================================== */
 
 .recognition-header {
   min-height: 82px;
-  padding: 18px 18px;
+  padding: 18px;
 
   display: flex;
   align-items: center;
@@ -36,7 +39,7 @@ body {
 .recognition-header p {
   margin: 4px 0 0;
   font-size: 12px;
-  opacity: 0.8;
+  opacity: 0.82;
 }
 
 .back-btn {
@@ -73,7 +76,9 @@ body {
 }
 
 
-/* Main */
+/* =====================================================
+   MAIN
+   ===================================================== */
 
 .recognition-container {
   padding: 18px;
@@ -81,7 +86,9 @@ body {
 }
 
 
-/* Camera */
+/* =====================================================
+   CAMERA CARD
+   ===================================================== */
 
 .camera-card {
   background: white;
@@ -90,7 +97,8 @@ body {
 
   padding: 12px;
 
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.08);
+  box-shadow:
+    0 8px 25px rgba(15, 23, 42, 0.08);
 }
 
 .camera-top {
@@ -112,7 +120,7 @@ body {
 
   border-radius: 50%;
 
-  background: #22c55e;
+  background: #94a3b8;
 
   margin-right: 6px;
 }
@@ -130,13 +138,21 @@ body {
 }
 
 
-/* Camera screen */
+/* =====================================================
+   CAMERA SCREEN
+   ===================================================== */
 
 .camera-screen {
   position: relative;
 
   width: 100%;
-  height: 360px;
+
+  /*
+    Reduced height so the complete
+    placeholder fits on mobile screens.
+  */
+
+  height: 330px;
 
   overflow: hidden;
 
@@ -150,7 +166,16 @@ body {
     );
 }
 
+
+/* =====================================================
+   VIDEO
+   ===================================================== */
+
 #cameraVideo {
+  position: absolute;
+
+  inset: 0;
+
   width: 100%;
   height: 100%;
 
@@ -159,13 +184,39 @@ body {
   display: none;
 
   transform: scaleX(-1);
+
+  z-index: 1;
 }
 
 
-/* Placeholder */
+/* =====================================================
+   LANDMARK CANVAS
+   ===================================================== */
+
+#landmarkCanvas {
+  position: absolute;
+
+  inset: 0;
+
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+
+  z-index: 5;
+}
+
+
+/* =====================================================
+   CAMERA PLACEHOLDER
+   ===================================================== */
 
 .camera-placeholder {
-  height: 100%;
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 10;
 
   display: flex;
 
@@ -177,26 +228,28 @@ body {
 
   text-align: center;
 
-  padding: 25px;
+  padding: 20px;
 
   color: white;
+
+  box-sizing: border-box;
 }
 
 .camera-icon {
-  width: 65px;
-  height: 65px;
+  width: 58px;
+  height: 58px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 20px;
+  border-radius: 18px;
 
   background: rgba(255,255,255,0.12);
 
-  font-size: 28px;
+  font-size: 27px;
 
-  margin-bottom: 15px;
+  margin-bottom: 12px;
 }
 
 .camera-placeholder h2 {
@@ -206,41 +259,68 @@ body {
 }
 
 .camera-placeholder p {
-  max-width: 280px;
+  max-width: 285px;
+
+  margin: 8px 0 16px;
 
   font-size: 12px;
 
-  line-height: 1.6;
+  line-height: 1.5;
 
-  opacity: 0.7;
-
-  margin: 10px 0 20px;
+  opacity: 0.72;
 }
 
+
+/* =====================================================
+   START CAMERA BUTTON
+   ===================================================== */
+
 .start-camera-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  min-height: 46px;
+
+  padding: 0 24px;
+
   border: 0;
 
-  padding: 13px 22px;
-
-  border-radius: 12px;
+  border-radius: 13px;
 
   background: white;
 
   color: #075985;
 
+  font-size: 14px;
+
   font-weight: 800;
 
   cursor: pointer;
+
+  box-shadow:
+    0 7px 18px rgba(0,0,0,0.22);
+
+  position: relative;
+
+  z-index: 20;
+}
+
+.start-camera-btn:active {
+  transform: scale(0.97);
 }
 
 
-/* Camera guide */
+/* =====================================================
+   CAMERA GUIDE
+   ===================================================== */
 
 .camera-guide {
   position: absolute;
 
   width: 210px;
-  height: 230px;
+  height: 210px;
 
   left: 50%;
   top: 50%;
@@ -254,10 +334,14 @@ body {
   pointer-events: none;
 
   display: none;
+
+  z-index: 6;
 }
 
 
-/* Scan animation */
+/* =====================================================
+   SCAN LINE
+   ===================================================== */
 
 .scan-line {
   position: absolute;
@@ -276,10 +360,14 @@ body {
   opacity: 0;
 
   pointer-events: none;
+
+  z-index: 7;
 }
 
 
-/* Result */
+/* =====================================================
+   RESULT CARD
+   ===================================================== */
 
 .result-card {
   background: white;
@@ -290,7 +378,8 @@ body {
 
   border-radius: 20px;
 
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+  box-shadow:
+    0 8px 25px rgba(15, 23, 42, 0.06);
 }
 
 .section-title {
@@ -338,7 +427,9 @@ body {
 }
 
 
-/* Confidence bar */
+/* =====================================================
+   CONFIDENCE BAR
+   ===================================================== */
 
 .prediction-bar {
   height: 7px;
@@ -377,7 +468,9 @@ body {
 }
 
 
-/* Predictions */
+/* =====================================================
+   PREDICTION CARD
+   ===================================================== */
 
 .prediction-card {
   background: white;
@@ -388,7 +481,8 @@ body {
 
   border-radius: 20px;
 
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+  box-shadow:
+    0 8px 25px rgba(15, 23, 42, 0.06);
 }
 
 .prediction-heading {
@@ -462,7 +556,9 @@ body {
 }
 
 
-/* ML Engine */
+/* =====================================================
+   ML ENGINE
+   ===================================================== */
 
 .engine-card {
   margin-top: 16px;
@@ -529,13 +625,13 @@ body {
 
   border-radius: 50%;
 
-  background: #22c55e;
-
-  box-shadow: 0 0 10px rgba(34,197,94,0.8);
+  background: #94a3b8;
 }
 
 
-/* Instructions */
+/* =====================================================
+   INSTRUCTIONS
+   ===================================================== */
 
 .instruction-card {
   margin-top: 16px;
@@ -546,7 +642,8 @@ body {
 
   border-radius: 20px;
 
-  box-shadow: 0 8px 25px rgba(15, 23, 42, 0.06);
+  box-shadow:
+    0 8px 25px rgba(15, 23, 42, 0.06);
 }
 
 .instruction-card h3 {
@@ -568,6 +665,8 @@ body {
 .instruction-list span {
   width: 28px;
   height: 28px;
+
+  flex-shrink: 0;
 
   display: flex;
   align-items: center;
@@ -593,7 +692,9 @@ body {
 }
 
 
-/* Bottom Navigation */
+/* =====================================================
+   BOTTOM NAV
+   ===================================================== */
 
 .bottom-nav {
   position: fixed;
@@ -609,7 +710,7 @@ body {
   justify-content: space-around;
   align-items: center;
 
-  background: rgba(255,255,255,0.96);
+  background: rgba(255,255,255,0.97);
 
   border-top: 1px solid #e2e8f0;
 
@@ -631,7 +732,7 @@ body {
 
   gap: 3px;
 
-  font-size: 18px; 
+  font-size: 18px;
 }
 
 .bottom-nav button small {
@@ -643,52 +744,58 @@ body {
 }
 
 
-/* Mobile */
+/* =====================================================
+   SMALL PHONES
+   ===================================================== */
 
 @media (max-width: 380px) {
 
+  .recognition-container {
+    padding: 12px;
+
+    padding-bottom: 100px;
+  }
+
   .camera-screen {
-    height: 320px;
+    height: 300px;
   }
 
-  .section-title h2 {
-    font-size: 21px;
+  .camera-placeholder {
+    padding: 14px;
   }
 
-    }
-/* Two-hand landmark canvas */
+  .camera-icon {
+    width: 50px;
+    height: 50px;
 
-#landmarkCanvas {
-  position: absolute;
+    margin-bottom: 8px;
+  }
 
-  inset: 0;
+  .camera-placeholder h2 {
+    font-size: 18px;
+  }
 
-  width: 100%;
-  height: 100%;
+  .camera-placeholder p {
+    margin: 6px 0 12px;
+  }
 
-  pointer-events: none;
+  .start-camera-btn {
+    min-height: 43px;
 
-  z-index: 5;
+    padding: 0 20px;
+  }
+
 }
 
-#cameraVideo {
-  position: absolute;
 
-  inset: 0;
+/* =====================================================
+   VERY SMALL HEIGHT SCREENS
+   ===================================================== */
 
-  z-index: 1;
-}
+@media (max-height: 700px) {
 
-.camera-placeholder {
-  position: relative;
+  .camera-screen {
+    height: 285px;
+  }
 
-  z-index: 10;
-}
-
-.camera-guide {
-  z-index: 6;
-}
-
-.scan-line {
-  z-index: 7;
-}
+   }
