@@ -1,8 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
   <meta charset="UTF-8">
 
   <meta
@@ -10,481 +8,279 @@
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
   >
 
-  <title>Sign Recognition | SignBridge AI</title>
+  <title>Sign Recognition - SignBridge AI</title>
 
   <link rel="stylesheet" href="style.css">
   <link rel="stylesheet" href="recognition.css">
-
-  <!-- MediaPipe Hands -->
-  <script
-    src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
-    crossorigin="anonymous">
-  </script>
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
-    crossorigin="anonymous">
-  </script>
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
-    crossorigin="anonymous">
-  </script>
-
-  <script
-    src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
-    crossorigin="anonymous">
-  </script>
-
 </head>
-
 
 <body>
 
-
   <!-- HEADER -->
+  <header class="app-header">
+    <div class="header-left">
 
-  <header class="recognition-header">
+      <!-- BACK BUTTON -->
+      <button
+        id="backButton"
+        class="back-btn"
+        type="button"
+        aria-label="Go back"
+      >
+        ‹
+      </button>
 
-    <button
-      class="back-btn"
-      onclick="goBack()">
-      ‹
-    </button>
-
-    <div>
-
-      <h1>Sign Recognition</h1>
-
-      <p>
-        Two-hand ML recognition engine
-      </p>
+      <div>
+        <h1>Sign Recognition</h1>
+        <p>Two-hand ML recognition engine</p>
+      </div>
 
     </div>
 
-    <div class="ml-badge">
+    <div class="header-badge">
       ML
     </div>
-
   </header>
 
 
-  <!-- MAIN -->
+  <!-- MAIN CONTENT -->
+  <main class="recognition-page">
 
-  <main class="recognition-container">
-
-
-    <!-- CAMERA -->
-
+    <!-- CAMERA CARD -->
     <section class="camera-card">
 
-      <div class="camera-top">
-
-        <div>
-
-          <span
-            class="status-dot"
-            id="statusDot">
-          </span>
-
-          <span id="cameraStatus">
-            Camera Ready
-          </span>
-
+      <div class="camera-card-header">
+        <div class="camera-status">
+          <span id="cameraStatusDot" class="status-dot"></span>
+          <strong id="cameraStatusText">Camera Ready</strong>
         </div>
 
-        <span class="camera-label">
+        <span class="two-hand-badge">
           TWO-HAND
         </span>
-
       </div>
 
 
-      <div
-        class="camera-screen"
-        id="cameraScreen">
-
-
-        <!-- VIDEO -->
+      <!-- CAMERA AREA -->
+      <div class="camera-screen">
 
         <video
           id="cameraVideo"
           autoplay
+          muted
           playsinline
-          muted>
-        </video>
+        ></video>
 
+        <canvas id="landmarkCanvas"></canvas>
 
-        <!-- LANDMARK CANVAS -->
+        <!-- PLACEHOLDER -->
+        <div id="cameraPlaceholder" class="camera-placeholder">
 
-        <canvas
-          id="landmarkCanvas">
-        </canvas>
-
-
-        <!-- CAMERA PLACEHOLDER -->
-
-        <div
-          class="camera-placeholder"
-          id="cameraPlaceholder">
-
-          <div class="camera-icon">
-            ✋
+          <div class="placeholder-icon">
+            🖐️
           </div>
 
-          <h2>
-            Two-Hand Recognition
-          </h2>
+          <h2>Two-Hand Recognition</h2>
 
           <p>
-            Show one or both hands clearly
-            inside the camera area.
+            Show one or both hands clearly inside the camera area.
           </p>
 
           <button
+            id="startCameraButton"
             class="start-camera-btn"
-            onclick="startCamera()">
-
+            type="button"
+          >
             Start Camera
-
           </button>
 
+          <p
+            id="cameraError"
+            class="camera-error"
+            style="display:none;"
+          ></p>
+
         </div>
 
+        <!-- CAMERA GUIDE -->
+        <div class="camera-guide"></div>
 
-        <!-- GUIDE -->
-
-        <div
-          class="camera-guide"
-          id="cameraGuide">
-        </div>
-
-
-        <!-- SCAN -->
-
-        <div
-          class="scan-line"
-          id="scanLine">
-        </div>
-
+        <div class="scan-line"></div>
 
       </div>
 
     </section>
 
 
-    <!-- HAND STATUS -->
+    <!-- HAND DETECTION -->
+    <section class="detection-card">
 
-    <section class="result-card">
+      <div class="section-label">
+        HAND DETECTION
+      </div>
 
-      <div class="section-title">
+      <div class="detection-header">
 
         <div>
-
-          <span>
-            Hand Detection
-          </span>
-
-          <h2 id="recognizedText">
+          <h2 id="detectionTitle">
             Waiting...
           </h2>
-
         </div>
 
-
-        <div class="confidence-box">
-
-          <small>
-            Hands
-          </small>
-
-          <strong id="confidenceValue">
+        <div class="hands-counter">
+          <span>Hands</span>
+          <strong id="handsCount">
             0/2
           </strong>
-
         </div>
 
       </div>
 
-
-      <div class="prediction-bar">
-
+      <div class="detection-progress">
         <div
-          id="confidenceBar">
-        </div>
-
+          id="detectionProgress"
+          class="detection-progress-fill"
+        ></div>
       </div>
 
-
-      <p
-        class="result-message"
-        id="resultMessage">
-
+      <p id="detectionMessage">
         Start the camera to detect your hands.
-
       </p>
 
     </section>
 
 
-    <!-- TWO HAND STATUS -->
+    <!-- FEATURE VECTOR -->
+    <section class="feature-card">
 
-    <section class="prediction-card">
-
-      <div class="prediction-heading">
+      <div class="feature-header">
 
         <div>
-
-          <span>
+          <div class="section-label">
             Landmark Input
-          </span>
+          </div>
 
-          <h3>
+          <h2>
             Two-Hand Feature Vector
-          </h3>
-
+          </h2>
         </div>
 
-        <span class="ai-status">
+        <span class="feature-number">
           126
         </span>
 
       </div>
 
 
-      <div class="prediction-list">
+      <div class="hand-row">
 
-
-        <!-- LEFT -->
-
-        <div class="prediction-item">
-
-          <span>
-            01
-          </span>
-
-          <strong>
-            Left Hand
-          </strong>
-
-          <b id="leftHandStatus">
-            Not detected
-          </b>
-
+        <div class="hand-number">
+          01
         </div>
 
-
-        <!-- RIGHT -->
-
-        <div class="prediction-item">
-
-          <span>
-            02
-          </span>
-
-          <strong>
-            Right Hand
-          </strong>
-
-          <b id="rightHandStatus">
-            Not detected
-          </b>
-
+        <div class="hand-name">
+          Left Hand
         </div>
 
-
-        <!-- FEATURES -->
-
-        <div class="prediction-item">
-
-          <span>
-            03
-          </span>
-
-          <strong>
-            ML Features
-          </strong>
-
-          <b id="featureCount">
-            0 / 126
-          </b>
-
-        </div>
-
+        <strong id="leftHandStatus">
+          Not detected
+        </strong>
 
       </div>
 
-    </section>
 
+      <div class="hand-row">
 
-    <!-- ML ENGINE -->
+        <div class="hand-number">
+          02
+        </div>
 
-    <section class="engine-card">
+        <div class="hand-name">
+          Right Hand
+        </div>
 
-      <div class="engine-icon">
-        ✦
+        <strong id="rightHandStatus">
+          Not detected
+        </strong>
+
       </div>
 
 
-      <div class="engine-info">
+      <div class="feature-total">
 
         <span>
-          Recognition Engine
+          ML Features
         </span>
 
-        <h3>
-          Two-Hand Landmark Engine
-        </h3>
-
-        <p id="engineStatus">
-          Waiting for camera
-        </p>
-
-      </div>
-
-
-      <div
-        class="engine-indicator"
-        id="engineIndicator">
-      </div>
-
-    </section>
-
-
-    <!-- INFORMATION -->
-
-    <section class="instruction-card">
-
-      <h3>
-        Two-Hand ML Pipeline
-      </h3>
-
-
-      <div class="instruction-list">
-
-
-        <div>
-
-          <span>
-            01
-          </span>
-
-          <p>
-            Detect up to two hands.
-          </p>
-
-        </div>
-
-
-        <div>
-
-          <span>
-            02
-          </span>
-
-          <p>
-            Extract 21 landmarks from each hand.
-          </p>
-
-        </div>
-
-
-        <div>
-
-          <span>
-            03
-          </span>
-
-          <p>
-            Create a 126-value feature vector.
-          </p>
-
-        </div>
-
-
-        <div>
-
-          <span>
-            04
-          </span>
-
-          <p>
-            Send processed features to the ML model.
-          </p>
-
-        </div>
-
+        <strong id="featureCount">
+          0 / 126
+        </strong>
 
       </div>
 
     </section>
 
+
+    <!-- ENGINE STATUS -->
+    <section class="engine-card">
+
+      <div class="section-label">
+        RECOGNITION ENGINE
+      </div>
+
+      <h2 id="engineStatus">
+        Ready
+      </h2>
+
+      <p id="engineMessage">
+        Two-hand landmark engine is waiting for the camera.
+      </p>
+
+    </section>
 
   </main>
 
 
-  <!-- BOTTOM NAV -->
-
+  <!-- BOTTOM NAVIGATION -->
   <nav class="bottom-nav">
 
-
-    <button onclick="goHome()">
-
-      <span>
-        ⌂
-      </span>
-
-      <small>
-        Home
-      </small>
-
+    <button
+      type="button"
+      onclick="window.location.href='index.html'"
+    >
+      <span>⌂</span>
+      <small>Home</small>
     </button>
 
-
-    <button class="active">
-
-      <span>
-        ✋
-      </span>
-
-      <small>
-        Recognize
-      </small>
-
+    <button
+      type="button"
+      class="active"
+    >
+      <span>🖐️</span>
+      <small>Recognize</small>
     </button>
 
-
-    <button onclick="openCommunication()">
-
-      <span>
-        ◌
-      </span>
-
-      <small>
-        Communicate
-      </small>
-
+    <button
+      type="button"
+      onclick="window.location.href='communicate.html'"
+    >
+      <span>◯</span>
+      <small>Communicate</small>
     </button>
 
-
-    <button onclick="openProfile()">
-
-      <span>
-        ○
-      </span>
-
-      <small>
-        Profile
-      </small>
-
+    <button
+      type="button"
+      onclick="openProfile()"
+    >
+      <span>○</span>
+      <small>Profile</small>
     </button>
-
 
   </nav>
 
 
+  <!-- OUR JAVASCRIPT -->
   <script src="recognition.js"></script>
 
 </body>
-
 </html>
