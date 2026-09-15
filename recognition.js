@@ -1,6 +1,7 @@
 /* =====================================================
    SIGNBRIDGE AI
    TWO-HAND LANDMARK ENGINE
+   CORRECT MIRRORED-CAMERA HAND PROCESSING
    ===================================================== */
 
 
@@ -9,30 +10,22 @@
    ===================================================== */
 
 function goBack() {
-
   window.history.back();
-
 }
 
 
 function goHome() {
-
   window.location.href = "index.html";
-
 }
 
 
 function openCommunication() {
-
   window.location.href = "communicate.html";
-
 }
 
 
 function openProfile() {
-
   window.location.href = "profile.html";
-
 }
 
 
@@ -41,60 +34,91 @@ function openProfile() {
    ===================================================== */
 
 let videoElement = null;
-
 let canvasElement = null;
-
 let canvasCtx = null;
 
-let camera = null;
+let cameraStream = null;
 
 let hands = null;
 
 let cameraRunning = false;
 
+let processingFrame = false;
+
+let scanAnimationStarted = false;
+
 
 /*
-   Fixed two-hand ML representation.
+   TWO-HAND ML INPUT
 
-   LEFT HAND:
-   21 landmarks × 3 coordinates
+   Left hand:
+   21 landmarks × XYZ
    = 63 values
 
-   RIGHT HAND:
-   21 landmarks × 3 coordinates
+   Right hand:
+   21 landmarks × XYZ
    = 63 values
 
-   TOTAL:
+   Total:
    126 values
 */
 
+const FEATURES_PER_HAND = 63;
 const TOTAL_FEATURES = 126;
 
 
+/*
+   Off-screen canvas.
+
+   We use this to create the mirrored
+   selfie frame sent to MediaPipe.
+
+   This is important for correct
+   handedness classification.
+*/
+
+const inputCanvas =
+  document.createElement("canvas");
+
+const inputCtx =
+  inputCanvas.getContext("2d");
+
+
 /* =====================================================
-   INITIALIZATION
+   PAGE INITIALIZATION
    ===================================================== */
 
 document.addEventListener(
   "DOMContentLoaded",
   function () {
 
-    console.log(
-      "SignBridge AI: Two-Hand ML Engine loading..."
-    );
-
-
     videoElement =
-      document.getElementById("cameraVideo");
-
+      document.getElementById(
+        "cameraVideo"
+      );
 
     canvasElement =
-      document.getElementById("landmarkCanvas");
-
+      document.getElementById(
+        "landmarkCanvas"
+      );
 
     canvasCtx =
       canvasElement.getContext("2d");
 
+
+    /*
+      Initial UI state.
+
+      Camera MUST remain OFF.
+    */
+
+    setInitialState();
+
+
+    /*
+      Initialize MediaPipe,
+      but DO NOT start camera.
+    */
 
     initializeMediaPipe();
 
@@ -103,33 +127,189 @@ document.addEventListener(
 
 
 /* =====================================================
+   INITIAL UI STATE
+   ===================================================== */
+
+function setInitialState() {
+
+  const status =
+    document.getElementById(
+      "cameraStatus"
+    );
+
+  const recognized =
+    document.getElementById(
+      "recognizedText"
+    );
+
+  const confidence =
+    document.getElementById(
+      "confidenceValue"
+    );
+
+  const bar =
+    document.getElementById(
+      "confidenceBar"
+    );
+
+  const message =
+    document.getElementById(
+      "resultMessage"
+    );
+
+  const engine =
+    document.getElementById(
+      "engineStatus"
+    );
+
+
+  if (status) {
+    status.textContent =
+      "Camera Off";
+  }
+
+
+  if (recognized) {
+    recognized.textContent =
+      "Waiting...";
+  }
+
+
+  if (confidence) {
+    confidence.textContent =
+      "0/2";
+  }
+
+
+  if (bar) {
+    bar.style.width =
+      "0%";
+  }
+
+
+  if (message) {
+    message.textContent =
+      'Press "Start Camera" to begin hand detection.';
+  }
+
+
+  if (engine) {
+    engine.textContent =
+      "Camera not started";
+  }
+
+
+  document
+    .getElementById(
+      "leftHandStatus"
+    )
+    .textContent =
+    "Not detected";
+
+
+  document
+    .getElementById(
+      "rightHandStatus"
+    )
+    .textContent =
+    "Not detected";
+
+
+  document
+    .getElementById(
+      "featureCount"
+    )
+    .textContent =
+    "0 / 126";
+
+
+  /*
+    Make sure video/canvas are hidden
+    until the user starts the camera.
+  */
+
+  if (videoElement) {
+    videoElement.style.display =
+      "none";
+  }
+
+
+  if (canvasElement) {
+    canvasElement.style.display =
+      "none";
+  }
+
+
+  const guide =
+    document.getElementById(
+      "cameraGuide"
+    );
+
+  if (guide) {
+    guide.style.display =
+      "none";
+  }
+
+
+  const scan =
+    document.getElementById(
+      "scanLine"
+    );
+
+  if (scan) {
+    scan.style.opacity =
+      "0";
+  }
+
+}
+
+
+/* =====================================================
    MEDIAPIPE INITIALIZATION
    ===================================================== */
 
 function initializeMediaPipe() {
 
+  if (
+    typeof Hands ===
+    "undefined"
+  ) {
+
+    console.error(
+      "MediaPipe Hands library not loaded."
+    );
+
+    updateEngineStatus(
+      "MediaPipe failed to load"
+    );
+
+    return;
+
+  }
+
+
   try {
 
-    hands = new Hands({
+    hands =
+      new Hands({
 
-      locateFile: function (file) {
+        locateFile:
+          function (file) {
 
-        return (
-          "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" +
-          file
-        );
+            return (
+              "https://cdn.jsdelivr.net/npm/@mediapipe/hands/" +
+              file
+            );
 
-      }
+          }
 
-    });
+      });
 
 
     /*
-      IMPORTANT:
+      CORE REQUIREMENT:
 
-      maxNumHands = 2
-
-      This is the core two-hand requirement.
+      Allow TWO hands.
     */
 
     hands.setOptions({
@@ -138,9 +318,9 @@ function initializeMediaPipe() {
 
       modelComplexity: 1,
 
-      minDetectionConfidence: 0.65,
+      minDetectionConfidence: 0.70,
 
-      minTrackingConfidence: 0.65
+      minTrackingConfidence: 0.70
 
     });
 
@@ -151,7 +331,7 @@ function initializeMediaPipe() {
 
 
     console.log(
-      "Two-hand MediaPipe engine initialized."
+      "SignBridge AI: Two-hand MediaPipe initialized."
     );
 
 
@@ -169,7 +349,7 @@ function initializeMediaPipe() {
     );
 
     updateEngineStatus(
-      "ML engine initialization failed"
+      "MediaPipe initialization failed"
     );
 
   }
@@ -184,6 +364,15 @@ function initializeMediaPipe() {
 async function startCamera() {
 
   if (cameraRunning) {
+    return;
+  }
+
+
+  if (!hands) {
+
+    alert(
+      "The ML hand detector is still loading. Please wait a moment and try again."
+    );
 
     return;
 
@@ -192,16 +381,14 @@ async function startCamera() {
 
   try {
 
-    /*
-      Request front camera.
-    */
-
-    const stream =
+    cameraStream =
       await navigator.mediaDevices.getUserMedia({
 
         video: {
 
-          facingMode: "user",
+          facingMode: {
+            ideal: "user"
+          },
 
           width: {
             ideal: 1280
@@ -209,6 +396,11 @@ async function startCamera() {
 
           height: {
             ideal: 720
+          },
+
+          frameRate: {
+            ideal: 30,
+            max: 30
           }
 
         },
@@ -219,7 +411,7 @@ async function startCamera() {
 
 
     videoElement.srcObject =
-      stream;
+      cameraStream;
 
 
     await videoElement.play();
@@ -229,40 +421,39 @@ async function startCamera() {
 
 
     /*
-      Hide placeholder.
-    */
-
-    document
-      .getElementById(
-        "cameraPlaceholder"
-      )
-      .style.display = "none";
-
-
-    /*
-      Show guide.
-    */
-
-    document
-      .getElementById(
-        "cameraGuide"
-      )
-      .style.display = "block";
-
-
-    /*
-      Show video.
+      Show camera.
     */
 
     videoElement.style.display =
       "block";
 
 
+    canvasElement.style.display =
+      "block";
+
+
     /*
-      Start canvas.
+      Hide start screen.
     */
 
-    resizeCanvas();
+    document
+      .getElementById(
+        "cameraPlaceholder"
+      )
+      .style.display =
+      "none";
+
+
+    /*
+      Show hand guide.
+    */
+
+    document
+      .getElementById(
+        "cameraGuide"
+      )
+      .style.display =
+      "block";
 
 
     /*
@@ -277,35 +468,52 @@ async function startCamera() {
       "Camera Active";
 
 
+    /*
+      Status dot.
+    */
+
+    document
+      .getElementById(
+        "statusDot"
+      )
+      .style.background =
+      "#22c55e";
+
+
+    /*
+      Engine.
+    */
+
+    updateEngineStatus(
+      "Camera active • Two-hand detection running"
+    );
+
+
     document
       .getElementById(
         "resultMessage"
       )
       .textContent =
-      "Show your hand(s) clearly. Detecting landmarks...";
+      "Show your left or right hand inside the guide.";
 
 
-    updateEngineStatus(
-      "Camera active • Detecting two hands"
-    );
+    resizeCanvases();
 
-
-    /*
-      Start frame processing.
-    */
-
-    processCameraFrame();
-
-
-    /*
-      Start scan animation.
-    */
 
     startScanAnimation();
 
 
+    /*
+      Start processing.
+    */
+
+    requestAnimationFrame(
+      processCameraFrame
+    );
+
+
     console.log(
-      "Camera started successfully."
+      "SignBridge AI: Camera started."
     );
 
   }
@@ -318,12 +526,23 @@ async function startCamera() {
     );
 
 
+    cameraRunning = false;
+
+
     document
       .getElementById(
         "cameraStatus"
       )
       .textContent =
       "Camera Error";
+
+
+    document
+      .getElementById(
+        "statusDot"
+      )
+      .style.background =
+      "#ef4444";
 
 
     document
@@ -335,7 +554,7 @@ async function startCamera() {
 
 
     updateEngineStatus(
-      "Camera permission denied or unavailable"
+      "Camera unavailable"
     );
 
 
@@ -349,37 +568,129 @@ async function startCamera() {
 
 
 /* =====================================================
-   CAMERA FRAME LOOP
+   CAMERA FRAME PROCESSING
    ===================================================== */
 
 async function processCameraFrame() {
 
   if (!cameraRunning) {
-
     return;
-
   }
 
 
+  /*
+    Prevent multiple MediaPipe
+    requests from running together.
+  */
+
   if (
-    videoElement.readyState >= 2 &&
-    hands
+    !processingFrame &&
+    videoElement.readyState >= 2
   ) {
+
+    processingFrame = true;
+
 
     try {
 
-      await hands.send({
-        image: videoElement
-      });
+      resizeCanvases();
+
+
+      const width =
+        videoElement.videoWidth;
+
+
+      const height =
+        videoElement.videoHeight;
+
+
+      if (
+        width > 0 &&
+        height > 0
+      ) {
+
+        /*
+          Prepare mirrored selfie frame.
+
+          Original:
+
+          LEFT -------- RIGHT
+
+          becomes:
+
+          RIGHT ------- LEFT
+
+          This is the format expected
+          by MediaPipe's handedness model.
+        */
+
+        inputCanvas.width =
+          width;
+
+        inputCanvas.height =
+          height;
+
+
+        inputCtx.save();
+
+
+        inputCtx.clearRect(
+          0,
+          0,
+          width,
+          height
+        );
+
+
+        inputCtx.translate(
+          width,
+          0
+        );
+
+
+        inputCtx.scale(
+          -1,
+          1
+        );
+
+
+        inputCtx.drawImage(
+          videoElement,
+          0,
+          0,
+          width,
+          height
+        );
+
+
+        inputCtx.restore();
+
+
+        /*
+          Send mirrored frame to MediaPipe.
+        */
+
+        await hands.send({
+          image: inputCanvas
+        });
+
+      }
 
     }
 
     catch (error) {
 
       console.error(
-        "Frame processing error:",
+        "Hand processing error:",
         error
       );
+
+    }
+
+    finally {
+
+      processingFrame =
+        false;
 
     }
 
@@ -394,36 +705,25 @@ async function processCameraFrame() {
 
 
 /* =====================================================
-   RESIZE CANVAS
+   CANVAS SIZE
    ===================================================== */
 
-function resizeCanvas() {
+function resizeCanvases() {
 
-  if (!videoElement) {
-
+  if (
+    !videoElement ||
+    videoElement.videoWidth === 0
+  ) {
     return;
-
   }
 
 
   const width =
-    videoElement.videoWidth ||
-    videoElement.clientWidth;
+    videoElement.videoWidth;
 
 
   const height =
-    videoElement.videoHeight ||
-    videoElement.clientHeight;
-
-
-  if (
-    width === 0 ||
-    height === 0
-  ) {
-
-    return;
-
-  }
+    videoElement.videoHeight;
 
 
   canvasElement.width =
@@ -437,16 +737,23 @@ function resizeCanvas() {
 
 
 /* =====================================================
-   PROCESS MEDIAPIPE RESULTS
+   PROCESS HAND RESULTS
    ===================================================== */
 
-function processHandResults(results) {
+function processHandResults(
+  results
+) {
 
-  resizeCanvas();
+  if (!cameraRunning) {
+    return;
+  }
+
+
+  resizeCanvases();
 
 
   /*
-    Clear previous frame.
+    Clear old landmarks.
   */
 
   canvasCtx.clearRect(
@@ -465,10 +772,6 @@ function processHandResults(results) {
     results.multiHandedness || [];
 
 
-  /*
-    Maximum allowed hands = 2.
-  */
-
   const handCount =
     Math.min(
       detectedHands.length,
@@ -476,26 +779,26 @@ function processHandResults(results) {
     );
 
 
-  updateHandCount(
-    handCount
-  );
-
-
   /*
-    Create fixed two-hand storage.
+    Fixed feature arrays.
 
-    Every frame starts with:
-
-    left  = 63 zeros
-    right = 63 zeros
+    These ALWAYS have the same structure.
   */
 
-  const leftHand =
-    new Array(63).fill(0);
+  const leftHandFeatures =
+    new Array(
+      FEATURES_PER_HAND
+    ).fill(0);
 
 
-  const rightHand =
-    new Array(63).fill(0);
+  const rightHandFeatures =
+    new Array(
+      FEATURES_PER_HAND
+    ).fill(0);
+
+
+  let leftDetected = false;
+  let rightDetected = false;
 
 
   /*
@@ -512,80 +815,89 @@ function processHandResults(results) {
       detectedHands[i];
 
 
-    const label =
-      handedness[i]?.label;
-
-
     /*
-      MediaPipe's front-camera
-      handedness can appear mirrored.
+      Because we send a mirrored
+      selfie frame to MediaPipe,
+      its handedness label is now
+      directly usable.
 
-      We normalize it here.
+      NO manual swap here.
     */
 
-    const normalizedLabel =
-      normalizeHandLabel(
-        label
-      );
+    const label =
+      handedness[i]?.label ||
+      "Unknown";
 
 
     /*
       Draw landmarks.
+
+      MediaPipe coordinates now
+      correspond to the mirrored
+      camera preview.
     */
 
-    drawHandLandmarks(
+    drawHand(
       landmarks,
-      normalizedLabel
+      label
     );
 
 
     /*
-      Convert landmarks into
-      XYZ feature vector.
+      Extract 63 values.
     */
 
-    const featureVector =
+    const features =
       extractLandmarkFeatures(
         landmarks
       );
 
 
     /*
-      Store according to hand.
+      Store according to
+      physical hand.
     */
 
     if (
-      normalizedLabel === "Left"
+      label === "Left" &&
+      !leftDetected
     ) {
 
       for (
         let j = 0;
-        j < 63;
+        j < FEATURES_PER_HAND;
         j++
       ) {
 
-        leftHand[j] =
-          featureVector[j];
+        leftHandFeatures[j] =
+          features[j];
 
       }
+
+      leftDetected =
+        true;
 
     }
 
 
     else if (
-      normalizedLabel === "Right"
+      label === "Right" &&
+      !rightDetected
     ) {
 
       for (
         let j = 0;
-        j < 63;
+        j < FEATURES_PER_HAND;
         j++
       ) {
 
-        rightHand[j] =
-          featureVector[j];
+        rightHandFeatures[j] =
+          features[j];
 
       }
+
+      rightDetected =
+        true;
 
     }
 
@@ -593,71 +905,52 @@ function processHandResults(results) {
 
 
   /*
-    Create the final
-    TWO-HAND feature vector.
+    FINAL TWO-HAND VECTOR
 
-    [LEFT 63] + [RIGHT 63]
+    [Left 63]
+          +
+    [Right 63]
 
     = 126 values
   */
 
   const twoHandFeatures =
-    leftHand.concat(
-      rightHand
+    leftHandFeatures.concat(
+      rightHandFeatures
     );
 
 
   /*
-    Count active values.
+    Save the vector.
 
-    This is useful for testing.
-  */
-
-  let activeValues = 0;
-
-
-  for (
-    let i = 0;
-    i < twoHandFeatures.length;
-    i++
-  ) {
-
-    if (
-      twoHandFeatures[i] !== 0
-    ) {
-
-      activeValues++;
-
-    }
-
-  }
-
-
-  /*
-    Update UI.
-  */
-
-  updateFeatureCount(
-    activeValues,
-    handCount
-  );
-
-
-  /*
-    IMPORTANT:
-
-    This variable is the actual
-    future ML model input.
-
-    We are NOT predicting a sign yet.
+    This is the exact structure
+    we'll later feed into our ML model.
   */
 
   window.currentTwoHandFeatures =
     twoHandFeatures;
 
 
-  console.log(
-    "Two-hand feature vector:",
+  /*
+    Also expose individual hands
+    for debugging/training later.
+  */
+
+  window.currentLeftHandFeatures =
+    leftHandFeatures;
+
+
+  window.currentRightHandFeatures =
+    rightHandFeatures;
+
+
+  /*
+    Update interface.
+  */
+
+  updateDetectionUI(
+    leftDetected,
+    rightDetected,
     twoHandFeatures
   );
 
@@ -665,36 +958,7 @@ function processHandResults(results) {
 
 
 /* =====================================================
-   NORMALIZE HAND LABEL
-   ===================================================== */
-
-function normalizeHandLabel(label) {
-
-  if (
-    label === "Left"
-  ) {
-
-    return "Left";
-
-  }
-
-
-  if (
-    label === "Right"
-  ) {
-
-    return "Right";
-
-  }
-
-
-  return "Unknown";
-
-}
-
-
-/* =====================================================
-   EXTRACT LANDMARK FEATURES
+   LANDMARK FEATURE EXTRACTION
    ===================================================== */
 
 function extractLandmarkFeatures(
@@ -705,16 +969,16 @@ function extractLandmarkFeatures(
 
 
   /*
-    21 landmarks.
+    MediaPipe:
 
-    Each landmark contains:
+    21 landmarks
 
-    x
-    y
-    z
+    Each:
+    X
+    Y
+    Z
 
-    Therefore:
-
+    Total:
     21 × 3 = 63
   */
 
@@ -729,17 +993,17 @@ function extractLandmarkFeatures(
 
 
     features.push(
-      point.x
+      Number(point.x)
     );
 
 
     features.push(
-      point.y
+      Number(point.y)
     );
 
 
     features.push(
-      point.z
+      Number(point.z)
     );
 
   }
@@ -751,81 +1015,171 @@ function extractLandmarkFeatures(
 
 
 /* =====================================================
-   DRAW HAND LANDMARKS
+   DRAW HAND
    ===================================================== */
 
-function drawHandLandmarks(
+function drawHand(
   landmarks,
-  handLabel
+  label
 ) {
 
-  /*
-    Green = Left
-    Blue  = Right
-  */
-
   let pointColor =
-    "#22c55e";
+    "#38bdf8";
 
 
   let lineColor =
-    "#86efac";
+    "#7dd3fc";
 
+
+  /*
+    LEFT HAND
+    Green
+
+    RIGHT HAND
+    Blue
+  */
 
   if (
-    handLabel === "Right"
+    label === "Left"
   ) {
 
     pointColor =
-      "#38bdf8";
+      "#22c55e";
 
 
     lineColor =
-      "#7dd3fc";
+      "#86efac";
 
   }
 
 
   /*
-    Draw connections.
+    Draw skeleton.
   */
 
-  drawConnectors(
-    canvasCtx,
-    landmarks,
-    HAND_CONNECTIONS,
-    {
-      color: lineColor,
-      lineWidth: 3
-    }
-  );
+  if (
+    typeof drawConnectors ===
+    "function"
+  ) {
+
+    drawConnectors(
+      canvasCtx,
+      landmarks,
+      HAND_CONNECTIONS,
+      {
+        color: lineColor,
+        lineWidth: 3
+      }
+    );
+
+  }
 
 
   /*
-    Draw points.
+    Draw landmark points.
   */
 
-  drawLandmarks(
-    canvasCtx,
-    landmarks,
-    {
-      color: pointColor,
-      fillColor: pointColor,
-      radius: 4,
-      lineWidth: 1
-    }
-  );
+  if (
+    typeof drawLandmarks ===
+    "function"
+  ) {
+
+    drawLandmarks(
+      canvasCtx,
+      landmarks,
+      {
+        color: pointColor,
+        fillColor: pointColor,
+        radius: 4,
+        lineWidth: 1
+      }
+    );
+
+  }
 
 }
 
 
 /* =====================================================
-   UPDATE HAND COUNT
+   UPDATE DETECTION UI
    ===================================================== */
 
-function updateHandCount(
-  count
+function updateDetectionUI(
+  leftDetected,
+  rightDetected,
+  features
 ) {
+
+  const handCount =
+    (leftDetected ? 1 : 0) +
+    (rightDetected ? 1 : 0);
+
+
+  /*
+    LEFT STATUS
+  */
+
+  document
+    .getElementById(
+      "leftHandStatus"
+    )
+    .textContent =
+    leftDetected
+      ? "Detected"
+      : "Not detected";
+
+
+  /*
+    RIGHT STATUS
+  */
+
+  document
+    .getElementById(
+      "rightHandStatus"
+    )
+    .textContent =
+    rightDetected
+      ? "Detected"
+      : "Not detected";
+
+
+  /*
+    Count non-zero features.
+  */
+
+  let activeFeatures = 0;
+
+
+  for (
+    let i = 0;
+    i < features.length;
+    i++
+  ) {
+
+    if (
+      features[i] !== 0
+    ) {
+
+      activeFeatures++;
+
+    }
+
+  }
+
+
+  document
+    .getElementById(
+      "featureCount"
+    )
+    .textContent =
+    activeFeatures +
+    " / " +
+    TOTAL_FEATURES;
+
+
+  /*
+    HAND COUNT
+  */
 
   const recognized =
     document.getElementById(
@@ -845,8 +1199,12 @@ function updateHandCount(
     );
 
 
+  /*
+    No hands.
+  */
+
   if (
-    count === 0
+    handCount === 0
   ) {
 
     recognized.textContent =
@@ -860,13 +1218,31 @@ function updateHandCount(
     bar.style.width =
       "0%";
 
+
+    document
+      .getElementById(
+        "resultMessage"
+      )
+      .textContent =
+      "No hand detected. Place your hand(s) inside the guide.";
+
+
+    updateEngineStatus(
+      "Searching for hands..."
+    );
+
+
     return;
 
   }
 
 
+  /*
+    One hand.
+  */
+
   if (
-    count === 1
+    handCount === 1
   ) {
 
     recognized.textContent =
@@ -880,13 +1256,53 @@ function updateHandCount(
     bar.style.width =
       "50%";
 
+
+    if (
+      leftDetected &&
+      !rightDetected
+    ) {
+
+      document
+        .getElementById(
+          "resultMessage"
+        )
+        .textContent =
+        "LEFT hand detected correctly.";
+
+    }
+
+
+    else if (
+      rightDetected &&
+      !leftDetected
+    ) {
+
+      document
+        .getElementById(
+          "resultMessage"
+        )
+        .textContent =
+        "RIGHT hand detected correctly.";
+
+    }
+
+
+    updateEngineStatus(
+      "One hand • 21 landmarks • 63 features"
+    );
+
+
     return;
 
   }
 
 
+  /*
+    BOTH HANDS
+  */
+
   if (
-    count === 2
+    handCount === 2
   ) {
 
     recognized.textContent =
@@ -900,86 +1316,14 @@ function updateHandCount(
     bar.style.width =
       "100%";
 
-  }
-
-}
-
-
-/* =====================================================
-   UPDATE FEATURE COUNT
-   ===================================================== */
-
-function updateFeatureCount(
-  activeValues,
-  handCount
-) {
-
-  document
-    .getElementById(
-      "featureCount"
-    )
-    .textContent =
-    activeValues +
-    " / " +
-    TOTAL_FEATURES;
-
-
-  /*
-    Determine whether
-    left/right hands are present.
-  */
-
-  const features =
-    window.currentTwoHandFeatures ||
-    [];
-
-
-  const leftExists =
-    features
-      .slice(0, 63)
-      .some(
-        value => value !== 0
-      );
-
-
-  const rightExists =
-    features
-      .slice(63, 126)
-      .some(
-        value => value !== 0
-      );
-
-
-  document
-    .getElementById(
-      "leftHandStatus"
-    )
-    .textContent =
-    leftExists
-      ? "Detected"
-      : "Not detected";
-
-
-  document
-    .getElementById(
-      "rightHandStatus"
-    )
-    .textContent =
-    rightExists
-      ? "Detected"
-      : "Not detected";
-
-
-  if (
-    handCount === 2
-  ) {
 
     document
       .getElementById(
         "resultMessage"
       )
       .textContent =
-      "Both hands detected. 126-value ML feature vector ready.";
+      "LEFT + RIGHT detected. 126-value ML input ready.";
+
 
     updateEngineStatus(
       "Two hands • 42 landmarks • 126 features"
@@ -987,40 +1331,249 @@ function updateFeatureCount(
 
   }
 
-  else if (
-    handCount === 1
-  ) {
+}
 
-    document
-      .getElementById(
-        "resultMessage"
-      )
-      .textContent =
-      "One hand detected. Show the second hand when required.";
 
-    updateEngineStatus(
-      "One hand detected • Waiting for second hand"
+/* =====================================================
+   SCAN ANIMATION
+   ===================================================== */
+
+function startScanAnimation() {
+
+  if (scanAnimationStarted) {
+    return;
+  }
+
+
+  scanAnimationStarted =
+    true;
+
+
+  const scanLine =
+    document.getElementById(
+      "scanLine"
+    );
+
+
+  scanLine.style.opacity =
+    "1";
+
+
+  let position = 20;
+
+  let direction = 1;
+
+
+  function animate() {
+
+    if (!cameraRunning) {
+
+      scanLine.style.opacity =
+        "0";
+
+      scanAnimationStarted =
+        false;
+
+      return;
+
+    }
+
+
+    position +=
+      direction * 0.7;
+
+
+    if (
+      position >= 80
+    ) {
+
+      direction = -1;
+
+    }
+
+
+    if (
+      position <= 20
+    ) {
+
+      direction = 1;
+
+    }
+
+
+    scanLine.style.top =
+      position + "%";
+
+
+    requestAnimationFrame(
+      animate
     );
 
   }
 
-  else {
 
-    document
-      .getElementById(
-        "resultMessage"
-      )
-      .textContent =
-      "No hand detected. Place your hands inside the guide.";
-
-    updateEngineStatus(
-      "Searching for hands..."
-    );
-
-  }
+  animate();
 
 }
 
+
+/* =====================================================
+   STOP CAMERA
+   ===================================================== */
+
+function stopCamera() {
+
+  cameraRunning =
+    false;
+
+
+  processingFrame =
+    false;
+
+
+  if (
+    cameraStream
+  ) {
+
+    cameraStream
+      .getTracks()
+      .forEach(
+        function (track) {
+
+          track.stop();
+
+        }
+      );
+
+    cameraStream =
+      null;
+
+  }
+
+
+  if (videoElement) {
+
+    videoElement.srcObject =
+      null;
+
+    videoElement.style.display =
+      "none";
+
+  }
+
+
+  if (canvasElement) {
+
+    canvasCtx.clearRect(
+      0,
+      0,
+      canvasElement.width,
+      canvasElement.height
+    );
+
+    canvasElement.style.display =
+      "none";
+
+  }
+
+
+  const placeholder =
+    document.getElementById(
+      "cameraPlaceholder"
+    );
+
+
+  if (placeholder) {
+
+    placeholder.style.display =
+      "flex";
+
+  }
+
+
+  const guide =
+    document.getElementById(
+      "cameraGuide"
+    );
+
+
+  if (guide) {
+
+    guide.style.display =
+      "none";
+
+  }
+
+
+  document
+    .getElementById(
+      "cameraStatus"
+    )
+    .textContent =
+    "Camera Off";
+
+
+  document
+    .getElementById(
+      "statusDot"
+    )
+    .style.background =
+    "#94a3b8";
+
+
+  document
+    .getElementById(
+      "recognizedText"
+    )
+    .textContent =
+    "Waiting...";
+
+
+  document
+    .getElementById(
+      "confidenceValue"
+    )
+    .textContent =
+    "0/2";
+
+
+  document
+    .getElementById(
+      "confidenceBar"
+    )
+    .style.width =
+    "0%";
+
+
+  document
+    .getElementById(
+      "leftHandStatus"
+    )
+    .textContent =
+    "Not detected";
+
+
+  document
+    .getElementById(
+      "rightHandStatus"
+    )
+    .textContent =
+    "Not detected";
+
+
+  document
+    .getElementById(
+      "featureCount"
+    )
+    .textContent =
+    "0 / 126";
+
+
+  updateEngineStatus(
+    "Camera not started"
+  );
+
+}
 
 /* =====================================================
    ENGINE STATUS
@@ -1047,113 +1600,6 @@ function updateEngineStatus(
 
 
 /* =====================================================
-   SCAN ANIMATION
-   ===================================================== */
-
-function startScanAnimation() {
-
-  const scanLine =
-    document.getElementById(
-      "scanLine"
-    );
-
-
-  scanLine.style.opacity =
-    "1";
-
-
-  let position = 20;
-
-  let direction = 1;
-
-
-  setInterval(
-    function () {
-
-      position +=
-        direction * 0.7;
-
-
-      if (
-        position >= 80
-      ) {
-
-        direction = -1;
-
-      }
-
-
-      if (
-        position <= 20
-      ) {
-
-        direction = 1;
-
-      }
-
-
-      scanLine.style.top =
-        position + "%";
-
-    },
-    30
-  );
-
-}
-
-
-/* =====================================================
-   STOP CAMERA
-   ===================================================== */
-
-function stopCamera() {
-
-  if (
-    videoElement &&
-    videoElement.srcObject
-  ) {
-
-    const tracks =
-      videoElement
-        .srcObject
-        .getTracks();
-
-
-    tracks.forEach(
-      function (track) {
-
-        track.stop();
-
-      }
-    );
-
-
-    videoElement.srcObject =
-      null;
-
-  }
-
-
-  cameraRunning =
-    false;
-
-
-  document
-    .getElementById(
-      "cameraStatus"
-    )
-    .textContent =
-    "Camera Stopped";
-
-
-  updateEngineStatus(
-    "Camera stopped"
-  );
-
-}
-
-
-/* =====================================================
    PAGE CLEANUP
    ===================================================== */
 
@@ -1165,3 +1611,5 @@ window.addEventListener(
 
   }
 );
+
+/* ================================================
