@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <title>Sign Recognition | SignBridge AI</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="recognition.css">
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header class="recognition-header">
+
+    <button class="back-btn" onclick="goBack()">‹</button>
+
+    <div>
+      <h1>Sign Recognition</h1>
+      <p>ML-powered sign detection</p>
+    </div>
+
+    <div class="ml-badge">ML</div>
+
+  </header>
+
+
+  <!-- Main Content -->
+  <main class="recognition-container">
+
+    <!-- Camera Area -->
+    <section class="camera-card">
+
+      <div class="camera-top">
+
+        <div>
+          <span class="status-dot"></span>
+          <span id="cameraStatus">Camera Ready</span>
+        </div>
+
+        <span class="camera-label">LIVE</span>
+
+      </div>
+
+      <div class="camera-screen" id="cameraScreen">
+
+        <div class="camera-placeholder" id="cameraPlaceholder">
+
+          <div class="camera-icon">◉</div>
+
+          <h2>Start Sign Recognition</h2>
+
+          <p>
+            Allow camera access and show your sign clearly
+            inside the camera area.
+          </p>
+
+          <button class="start-camera-btn" onclick="startCamera()">
+            Start Camera
+          </button>
+
+        </div>
+
+        <video
+          id="cameraVideo"
+          autoplay
+          playsinline
+          muted>
+        </video>
+
+        <!-- Recognition Guide -->
+        <div class="camera-guide"></div>
+
+        <!-- ML scanning animation -->
+        <div class="scan-line" id="scanLine"></div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Recognition Result -->
+    <section class="result-card">
+
+      <div class="section-title">
+
+        <div>
+          <span>Recognition Result</span>
+          <h2 id="recognizedText">Waiting for sign...</h2>
+        </div>
+
+        <div class="confidence-box">
+          <small>Confidence</small>
+          <strong id="confidenceValue">0%</strong>
+        </div>
+
+      </div>
+
+      <div class="prediction-bar">
+        <div id="confidenceBar"></div>
+      </div>
+
+      <p class="result-message" id="resultMessage">
+        Start the camera to begin ML recognition.
+      </p>
+
+    </section>
+
+
+    <!-- Alternative Predictions -->
+    <section class="prediction-card">
+
+      <div class="prediction-heading">
+
+        <div>
+          <span>ML Predictions</span>
+          <h3>Possible matches</h3>
+        </div>
+
+        <span class="ai-status">AI</span>
+
+      </div>
+
+      <div class="prediction-list">
+
+        <div class="prediction-item">
+          <span>01</span>
+          <strong id="prediction1">Waiting...</strong>
+          <b id="predictionConfidence1">—</b>
+        </div>
+
+        <div class="prediction-item">
+          <span>02</span>
+          <strong id="prediction2">Waiting...</strong>
+          <b id="predictionConfidence2">—</b>
+        </div>
+
+        <div class="prediction-item">
+          <span>03</span>
+          <strong id="prediction3">Waiting...</strong>
+          <b id="predictionConfidence3">—</b>
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ML Engine -->
+    <section class="engine-card">
+
+      <div class="engine-icon">✦</div>
+
+      <div class="engine-info">
+
+        <span>Recognition Engine</span>
+
+        <h3>Machine Learning Model</h3>
+
+        <p id="engineStatus">
+          Model interface ready
+        </p>
+
+      </div>
+
+      <div class="engine-indicator"></div>
+
+    </section>
+
+
+    <!-- Instructions -->
+    <section class="instruction-card">
+
+      <h3>For better recognition</h3>
+
+      <div class="instruction-list">
+
+        <div>
+          <span>01</span>
+          <p>Keep your hand completely visible.</p>
+        </div>
+
+        <div>
+          <span>02</span>
+          <p>Use good lighting.</p>
+        </div>
+
+        <div>
+          <span>03</span>
+          <p>Keep the camera stable.</p>
+        </div>
+
+        <div>
+          <span>04</span>
+          <p>Make the sign clearly.</p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- Bottom Navigation -->
+  <nav class="bottom-nav">
+
+    <button onclick="goHome()">
+      <span>⌂</span>
+      <small>Home</small>
+    </button>
+
+    <button class="active">
+      <span>✋</span>
+      <small>Recognize</small>
+    </button>
+
+    <button onclick="openCommunication()">
+      <span>◌</span>
+      <small>Communicate</small>
+    </button>
+
+    <button onclick="openProfile()">
+      <span>○</span>
+      <small>Profile</small>
+    </button>
+
+  </nav>
+
+
+  <script src="recognition.js"></script>
+
+</body>
+</html>
