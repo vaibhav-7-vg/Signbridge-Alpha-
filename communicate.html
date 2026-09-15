@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+  <meta name="theme-color" content="#075985">
+
+  <title>Communicate - SignBridge AI</title>
+
+  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="communication.css">
+</head>
+
+<body>
+
+  <!-- HEADER -->
+  <header class="communication-header">
+
+    <button class="back-button" onclick="goBack()">
+      ←
+    </button>
+
+    <div>
+      <h1>Communicate</h1>
+      <p>Choose how you want to communicate</p>
+    </div>
+
+  </header>
+
+
+  <!-- MAIN -->
+  <main class="communication-container">
+
+    <section class="communication-intro">
+
+      <div class="intro-icon">
+        💬
+      </div>
+
+      <div>
+        <h2>Communication Bridge</h2>
+
+        <p>
+          Connect with people using sign,
+          speech and text.
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- SIGN TO TEXT -->
+    <div class="communication-option"
+         onclick="openSignRecognition()">
+
+      <div class="option-icon blue-icon">
+        🤟
+      </div>
+
+      <div class="option-content">
+
+        <h3>Sign → Text</h3>
+
+        <p>
+          Use the camera to recognize
+          Indian Sign Language.
+        </p>
+
+        <span class="coming-status">
+          ML Powered
+        </span>
+
+      </div>
+
+      <span class="option-arrow">
+        ›
+      </span>
+
+    </div>
+
+
+    <!-- SPEECH TO TEXT -->
+    <div class="communication-option"
+         onclick="speechToText()">
+
+      <div class="option-icon green-icon">
+        🎤
+      </div>
+
+      <div class="option-content">
+
+        <h3>Speech → Text</h3>
+
+        <p>
+          Convert spoken words into
+          readable text.
+        </p>
+
+        <span class="coming-status">
+          Speech AI
+        </span>
+
+      </div>
+
+      <span class="option-arrow">
+        ›
+      </span>
+
+    </div>
+
+
+    <!-- TEXT TO SPEECH -->
+    <div class="communication-option"
+         onclick="textToSpeech()">
+
+      <div class="option-icon purple-icon">
+        🔊
+      </div>
+
+      <div class="option-content">
+
+        <h3>Text → Speech</h3>
+
+        <p>
+          Type a message and let the
+          phone speak for you.
+        </p>
+
+        <span class="coming-status">
+          Voice AI
+        </span>
+
+      </div>
+
+      <span class="option-arrow">
+        ›
+      </span>
+
+    </div>
+
+
+    <!-- LIVE CONVERSATION -->
+    <div class="communication-option"
+         onclick="openLiveConversation()">
+
+      <div class="option-icon orange-icon">
+        👥
+      </div>
+
+      <div class="option-content">
+
+        <h3>Live Conversation</h3>
+
+        <p>
+          Communicate with another person
+          in real time.
+        </p>
+
+        <span class="coming-status">
+          Two-Way
+        </span>
+
+      </div>
+
+      <span class="option-arrow">
+        ›
+      </span>
+
+    </div>
+
+
+    <!-- COMMUNICATION TIP -->
+    <section class="communication-tip">
+
+      <div class="tip-icon">
+        💡
+      </div>
+
+      <div>
+
+        <strong>Designed for accessibility</strong>
+
+        <p>
+          SignBridge AI combines machine learning,
+          speech recognition and voice technology
+          to reduce communication barriers.
+        </p>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+
+    <button class="nav-item"
+            onclick="goHome()">
+
+      <span>⌂</span>
+      <small>Home</small>
+
+    </button>
+
+    <button class="nav-item active">
+
+      <span>💬</span>
+      <small>Communicate</small>
+
+    </button>
+
+    <button class="nav-item"
+            onclick="openLearn()">
+
+      <span>📖</span>
+      <small>Learn</small>
+
+    </button>
+
+    <button class="nav-item"
+            onclick="openProfile()">
+
+      <span>👤</span>
+      <small>Profile</small>
+
+    </button>
+
+  </nav>
+
+
+  <script src="communication.js"></script>
+
+</body>
+</html>
