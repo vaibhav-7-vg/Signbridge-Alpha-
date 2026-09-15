@@ -1,175 +1,216 @@
-/* =====================================================
+/* =========================================================
    SIGNBRIDGE AI — SIGN RECOGNITION
-   TWO-HAND ML INTERFACE
-   ===================================================== */
+   ========================================================= */
+
+* {
+  box-sizing: border-box;
+}
 
 body {
-  background: #f5f8fc;
+  margin: 0;
+  padding: 0 0 90px 0;
+  background: #f3f7fb;
+  font-family: Arial, sans-serif;
+  color: #172033;
 }
 
 
-/* =====================================================
+/* =========================================================
    HEADER
-   ===================================================== */
+   ========================================================= */
 
-.recognition-header {
-  min-height: 82px;
-  padding: 18px;
+.app-header {
+  width: 100%;
+  min-height: 130px;
+  padding: 28px 20px 24px;
+  background: linear-gradient(135deg, #087fa7, #1592b8);
+  color: white;
+  border-radius: 0 0 32px 32px;
 
   display: flex;
   align-items: center;
+  justify-content: space-between;
+
+  position: relative;
+  z-index: 100;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
   gap: 14px;
-
-  background: linear-gradient(
-    135deg,
-    #075985,
-    #0e7490
-  );
-
-  color: white;
-
-  border-radius: 0 0 24px 24px;
+  min-width: 0;
 }
 
-.recognition-header h1 {
+.header-left > div {
+  min-width: 0;
+}
+
+.header-left h1 {
   margin: 0;
-  font-size: 21px;
+  font-size: 27px;
+  line-height: 1.1;
+  font-weight: 800;
 }
 
-.recognition-header p {
-  margin: 4px 0 0;
-  font-size: 12px;
-  opacity: 0.82;
+.header-left p {
+  margin: 7px 0 0;
+  font-size: 15px;
+  opacity: 0.85;
 }
 
 .back-btn {
-  width: 42px;
-  height: 42px;
+  width: 50px;
+  height: 50px;
 
   border: 0;
-  border-radius: 13px;
+  border-radius: 15px;
 
-  background: rgba(255,255,255,0.15);
-
+  background: rgba(255,255,255,0.16);
   color: white;
-  font-size: 30px;
 
-  cursor: pointer;
-}
-
-.ml-badge {
-  margin-left: auto;
-
-  width: 40px;
-  height: 40px;
+  font-size: 36px;
+  line-height: 45px;
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 12px;
+  cursor: pointer;
+  touch-action: manipulation;
+
+  flex-shrink: 0;
+}
+
+.back-btn:active {
+  transform: scale(0.94);
+}
+
+.header-badge {
+  width: 50px;
+  height: 50px;
+
+  border-radius: 15px;
 
   background: rgba(255,255,255,0.15);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 800;
+  font-size: 15px;
+
+  flex-shrink: 0;
+}
+
+
+/* =========================================================
+   MAIN
+   ========================================================= */
+
+.recognition-page {
+  width: 100%;
+  max-width: 700px;
+
+  margin: 0 auto;
+  padding: 28px 18px 30px;
+}
+
+
+/* =========================================================
+   CAMERA CARD
+   ========================================================= */
+
+.camera-card {
+  background: white;
+
+  border-radius: 30px;
+
+  padding: 18px;
+
+  box-shadow:
+    0 8px 30px rgba(20, 40, 60, 0.08);
+
+  margin-bottom: 24px;
+}
+
+.camera-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 16px;
+}
+
+.camera-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  font-size: 16px;
+}
+
+.status-dot {
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #94a3b8;
+
+  flex-shrink: 0;
+}
+
+.status-dot.active {
+  background: #22c55e;
+}
+
+.status-dot.loading {
+  background: #f59e0b;
+}
+
+.status-dot.error {
+  background: #ef4444;
+}
+
+.two-hand-badge {
+  padding: 9px 13px;
+
+  border-radius: 12px;
+
+  background: #edf7fb;
+  color: #14637d;
 
   font-size: 12px;
   font-weight: 800;
 }
 
 
-/* =====================================================
-   MAIN
-   ===================================================== */
-
-.recognition-container {
-  padding: 18px;
-  padding-bottom: 105px;
-}
-
-
-/* =====================================================
-   CAMERA CARD
-   ===================================================== */
-
-.camera-card {
-  background: white;
-
-  border-radius: 22px;
-
-  padding: 12px;
-
-  box-shadow:
-    0 8px 25px rgba(15, 23, 42, 0.08);
-}
-
-.camera-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  padding: 5px 6px 12px;
-
-  font-size: 12px;
-  font-weight: 700;
-}
-
-.status-dot {
-  display: inline-block;
-
-  width: 8px;
-  height: 8px;
-
-  border-radius: 50%;
-
-  background: #94a3b8;
-
-  margin-right: 6px;
-}
-
-.camera-label {
-  padding: 5px 9px;
-
-  border-radius: 8px;
-
-  background: #eff6ff;
-
-  color: #075985;
-
-  font-size: 10px;
-}
-
-
-/* =====================================================
+/* =========================================================
    CAMERA SCREEN
-   ===================================================== */
+   ========================================================= */
 
 .camera-screen {
-  position: relative;
-
   width: 100%;
-
-  /*
-    Reduced height so the complete
-    placeholder fits on mobile screens.
-  */
-
   height: 330px;
+
+  position: relative;
 
   overflow: hidden;
 
-  border-radius: 17px;
+  border-radius: 25px;
 
   background:
     radial-gradient(
       circle at center,
-      #203b50,
-      #071521
+      #173247 0%,
+      #081b29 100%
     );
 }
 
 
-/* =====================================================
-   VIDEO
-   ===================================================== */
+/* VIDEO */
 
 #cameraVideo {
   position: absolute;
@@ -189,9 +230,7 @@ body {
 }
 
 
-/* =====================================================
-   LANDMARK CANVAS
-   ===================================================== */
+/* LANDMARK CANVAS */
 
 #landmarkCanvas {
   position: absolute;
@@ -201,15 +240,17 @@ body {
   width: 100%;
   height: 100%;
 
-  pointer-events: none;
+  display: none;
 
-  z-index: 5;
+  z-index: 3;
+
+  pointer-events: none;
 }
 
 
-/* =====================================================
-   CAMERA PLACEHOLDER
-   ===================================================== */
+/* =========================================================
+   PLACEHOLDER
+   ========================================================= */
 
 .camera-placeholder {
   position: absolute;
@@ -222,167 +263,211 @@ body {
 
   flex-direction: column;
 
-  justify-content: center;
-
   align-items: center;
+  justify-content: center;
 
   text-align: center;
 
-  padding: 20px;
-
-  color: white;
-
-  box-sizing: border-box;
+  padding: 25px;
 }
 
-.camera-icon {
-  width: 58px;
-  height: 58px;
+.placeholder-icon {
+  width: 95px;
+  height: 95px;
+
+  border-radius: 28px;
+
+  background: rgba(255,255,255,0.12);
 
   display: flex;
   align-items: center;
   justify-content: center;
 
-  border-radius: 18px;
+  font-size: 48px;
 
-  background: rgba(255,255,255,0.12);
-
-  font-size: 27px;
-
-  margin-bottom: 12px;
+  margin-bottom: 18px;
 }
 
 .camera-placeholder h2 {
   margin: 0;
 
-  font-size: 20px;
+  color: white;
+
+  font-size: 28px;
+
+  line-height: 1.2;
 }
 
 .camera-placeholder p {
-  max-width: 285px;
+  max-width: 450px;
 
-  margin: 8px 0 16px;
+  margin: 15px 0 24px;
 
-  font-size: 12px;
+  color: #c9d5dd;
+
+  font-size: 16px;
 
   line-height: 1.5;
-
-  opacity: 0.72;
 }
 
 
-/* =====================================================
+/* =========================================================
    START CAMERA BUTTON
-   ===================================================== */
+   ========================================================= */
 
 .start-camera-btn {
-  display: inline-flex;
+  position: relative;
 
-  align-items: center;
-  justify-content: center;
+  z-index: 30;
 
-  min-height: 46px;
+  min-width: 215px;
+  min-height: 58px;
 
-  padding: 0 24px;
+  padding: 14px 28px;
 
   border: 0;
 
-  border-radius: 13px;
+  border-radius: 20px;
 
   background: white;
 
-  color: #075985;
+  color: #12617c;
 
-  font-size: 14px;
+  font-size: 18px;
 
   font-weight: 800;
 
   cursor: pointer;
 
+  touch-action: manipulation;
+
+  -webkit-tap-highlight-color: transparent;
+
   box-shadow:
-    0 7px 18px rgba(0,0,0,0.22);
-
-  position: relative;
-
-  z-index: 20;
+    0 5px 18px rgba(0,0,0,0.12);
 }
 
 .start-camera-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.96);
 }
 
 
-/* =====================================================
+/* CAMERA ERROR */
+
+.camera-error {
+  max-width: 310px !important;
+
+  margin: 14px 0 0 !important;
+
+  color: #fecaca !important;
+
+  font-size: 13px !important;
+
+  line-height: 1.4 !important;
+}
+
+
+/* =========================================================
    CAMERA GUIDE
-   ===================================================== */
+   ========================================================= */
 
 .camera-guide {
   position: absolute;
 
-  width: 210px;
-  height: 210px;
+  inset: 18% 12%;
 
-  left: 50%;
-  top: 50%;
+  border: 2px dashed rgba(255,255,255,0.25);
 
-  transform: translate(-50%, -50%);
+  border-radius: 25px;
 
-  border: 2px dashed rgba(255,255,255,0.7);
-
-  border-radius: 24px;
+  z-index: 4;
 
   pointer-events: none;
-
-  display: none;
-
-  z-index: 6;
 }
 
 
-/* =====================================================
+/* =========================================================
    SCAN LINE
-   ===================================================== */
+   ========================================================= */
 
 .scan-line {
   position: absolute;
 
-  left: 8%;
-  right: 8%;
-
-  height: 2px;
+  left: 12%;
+  right: 12%;
 
   top: 20%;
 
-  background: #67e8f9;
+  height: 2px;
 
-  box-shadow: 0 0 15px #67e8f9;
-
-  opacity: 0;
-
-  pointer-events: none;
-
-  z-index: 7;
-}
-
-
-/* =====================================================
-   RESULT CARD
-   ===================================================== */
-
-.result-card {
-  background: white;
-
-  margin-top: 16px;
-
-  padding: 18px;
-
-  border-radius: 20px;
+  background: rgba(70,220,255,0.8);
 
   box-shadow:
-    0 8px 25px rgba(15, 23, 42, 0.06);
+    0 0 12px rgba(70,220,255,0.8);
+
+  display: none;
+
+  z-index: 5;
+
+  animation: scanMove 2.5s linear infinite;
+
+  pointer-events: none;
 }
 
-.section-title {
+@keyframes scanMove {
+  0% {
+    top: 20%;
+  }
+
+  50% {
+    top: 78%;
+  }
+
+  100% {
+    top: 20%;
+  }
+}
+
+
+/* =========================================================
+   DETECTION CARD
+   ========================================================= */
+
+.detection-card,
+.feature-card,
+.engine-card {
+  background: white;
+
+  border-radius: 28px;
+
+  padding: 24px;
+
+  margin-bottom: 22px;
+
+  box-shadow:
+    0 8px 30px rgba(20, 40, 60, 0.07);
+}
+
+.section-label {
+  color: #7b8797;
+
+  font-size: 13px;
+
+  font-weight: 800;
+
+  letter-spacing: 0.5px;
+
+  text-transform: uppercase;
+
+  margin-bottom: 10px;
+}
+
+
+/* =========================================================
+   DETECTION HEADER
+   ========================================================= */
+
+.detection-header {
   display: flex;
 
   justify-content: space-between;
@@ -390,331 +475,246 @@ body {
   align-items: center;
 }
 
-.section-title span {
-  font-size: 11px;
+.detection-header h2 {
+  margin: 0;
 
-  color: #64748b;
+  font-size: 30px;
 
-  font-weight: 700;
-
-  text-transform: uppercase;
+  font-weight: 800;
 }
 
-.section-title h2 {
-  margin: 5px 0 0;
-
-  font-size: 25px;
-
-  color: #0f172a;
-}
-
-.confidence-box {
+.hands-counter {
   text-align: right;
 }
 
-.confidence-box small {
+.hands-counter span {
   display: block;
 
-  color: #64748b;
+  color: #7b8797;
 
-  font-size: 10px;
+  font-size: 14px;
 }
 
-.confidence-box strong {
-  color: #075985;
+.hands-counter strong {
+  display: block;
 
-  font-size: 20px;
+  color: #087fa7;
+
+  font-size: 30px;
+
+  line-height: 1.1;
 }
 
 
-/* =====================================================
-   CONFIDENCE BAR
-   ===================================================== */
+/* =========================================================
+   PROGRESS
+   ========================================================= */
 
-.prediction-bar {
-  height: 7px;
+.detection-progress {
+  width: 100%;
 
-  margin-top: 15px;
+  height: 11px;
 
-  background: #e2e8f0;
+  margin: 18px 0;
 
-  border-radius: 10px;
+  background: #e5ebf1;
+
+  border-radius: 20px;
 
   overflow: hidden;
 }
 
-#confidenceBar {
+.detection-progress-fill {
   width: 0%;
 
   height: 100%;
 
   background: linear-gradient(
     90deg,
-    #075985,
-    #06b6d4
+    #087fa7,
+    #28a9ce
   );
 
-  transition: width 0.4s ease;
+  border-radius: inherit;
+
+  transition: width 0.3s ease;
 }
 
-.result-message {
-  margin: 12px 0 0;
+.detection-card > p {
+  margin: 0;
 
-  color: #64748b;
+  color: #7b8797;
 
-  font-size: 12px;
+  font-size: 15px;
 
   line-height: 1.5;
 }
 
 
-/* =====================================================
-   PREDICTION CARD
-   ===================================================== */
+/* =========================================================
+   FEATURE CARD
+   ========================================================= */
 
-.prediction-card {
-  background: white;
+.feature-header {
+  display: flex;
 
-  margin-top: 16px;
+  align-items: flex-start;
 
-  padding: 18px;
-
-  border-radius: 20px;
-
-  box-shadow:
-    0 8px 25px rgba(15, 23, 42, 0.06);
+  justify-content: space-between;
 }
 
-.prediction-heading {
+.feature-header h2 {
+  margin: 0;
+
+  font-size: 25px;
+
+  line-height: 1.2;
+}
+
+.feature-number {
+  min-width: 48px;
+  height: 40px;
+
+  padding: 0 10px;
+
+  border-radius: 13px;
+
+  background: #edf9fc;
+
+  color: #23809b;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-weight: 800;
+}
+
+
+/* =========================================================
+   HAND ROW
+   ========================================================= */
+
+.hand-row {
+  display: grid;
+
+  grid-template-columns: 45px 1fr auto;
+
+  align-items: center;
+
+  gap: 10px;
+
+  padding: 19px 0;
+
+  border-bottom: 1px solid #edf0f3;
+}
+
+.hand-number {
+  color: #9aa5b1;
+
+  font-size: 13px;
+
+  font-weight: 700;
+}
+
+.hand-name {
+  font-size: 17px;
+
+  font-weight: 700;
+}
+
+.hand-row strong {
+  color: #718096;
+
+  font-size: 14px;
+}
+
+.feature-total {
   display: flex;
 
   justify-content: space-between;
 
   align-items: center;
-}
 
-.prediction-heading span:first-child {
-  font-size: 11px;
+  padding-top: 18px;
 
-  color: #64748b;
-
-  font-weight: 700;
-}
-
-.prediction-heading h3 {
-  margin: 4px 0 0;
-
-  font-size: 17px;
-}
-
-.ai-status {
-  padding: 6px 9px;
-
-  background: #ecfeff;
-
-  color: #0e7490;
-
-  border-radius: 8px;
-
-  font-size: 10px;
-}
-
-.prediction-list {
-  margin-top: 14px;
-}
-
-.prediction-item {
-  display: grid;
-
-  grid-template-columns: 35px 1fr auto;
-
-  align-items: center;
-
-  padding: 12px 0;
-
-  border-bottom: 1px solid #eef2f7;
-}
-
-.prediction-item:last-child {
-  border-bottom: 0;
-}
-
-.prediction-item span {
-  font-size: 11px;
-
-  color: #94a3b8;
-}
-
-.prediction-item strong {
-  font-size: 14px;
-}
-
-.prediction-item b {
-  font-size: 12px;
-
-  color: #075985;
-}
-
-
-/* =====================================================
-   ML ENGINE
-   ===================================================== */
-
-.engine-card {
-  margin-top: 16px;
-
-  display: flex;
-
-  align-items: center;
-
-  gap: 13px;
-
-  padding: 17px;
-
-  background: #0f172a;
-
-  color: white;
-
-  border-radius: 20px;
-}
-
-.engine-icon {
-  width: 43px;
-  height: 43px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 13px;
-
-  background: rgba(255,255,255,0.1);
-
-  font-size: 20px;
-}
-
-.engine-info {
-  flex: 1;
-}
-
-.engine-info span {
-  font-size: 10px;
-
-  opacity: 0.6;
-
-  text-transform: uppercase;
-}
-
-.engine-info h3 {
-  margin: 4px 0;
+  color: #667085;
 
   font-size: 14px;
 }
 
-.engine-info p {
-  margin: 0;
-
-  font-size: 11px;
-
-  opacity: 0.65;
-}
-
-.engine-indicator {
-  width: 9px;
-  height: 9px;
-
-  border-radius: 50%;
-
-  background: #94a3b8;
-}
-
-
-/* =====================================================
-   INSTRUCTIONS
-   ===================================================== */
-
-.instruction-card {
-  margin-top: 16px;
-
-  background: white;
-
-  padding: 18px;
-
-  border-radius: 20px;
-
-  box-shadow:
-    0 8px 25px rgba(15, 23, 42, 0.06);
-}
-
-.instruction-card h3 {
-  margin: 0 0 13px;
+.feature-total strong {
+  color: #087fa7;
 
   font-size: 16px;
 }
 
-.instruction-list > div {
-  display: flex;
 
-  gap: 12px;
+/* =========================================================
+   ENGINE CARD
+   ========================================================= */
+
+.engine-card {
+  background: #10192e;
+
+  color: white;
+
+  display: grid;
+
+  grid-template-columns: 1fr auto 1.8fr;
 
   align-items: center;
 
-  padding: 9px 0;
+  gap: 15px;
 }
 
-.instruction-list span {
-  width: 28px;
-  height: 28px;
+.engine-card .section-label {
+  color: #c6cfdb;
 
-  flex-shrink: 0;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  border-radius: 9px;
-
-  background: #eff6ff;
-
-  color: #075985;
-
-  font-size: 10px;
-
-  font-weight: 800;
+  margin: 0;
 }
 
-.instruction-list p {
+.engine-card h2 {
   margin: 0;
 
-  font-size: 12px;
+  font-size: 24px;
+}
 
-  color: #475569;
+.engine-card p {
+  margin: 0;
+
+  color: #c6cfdb;
+
+  font-size: 15px;
+
+  line-height: 1.4;
 }
 
 
-/* =====================================================
+/* =========================================================
    BOTTOM NAV
-   ===================================================== */
+   ========================================================= */
 
 .bottom-nav {
   position: fixed;
 
-  bottom: 0;
   left: 0;
   right: 0;
+  bottom: 0;
 
-  height: 70px;
-
-  display: flex;
-
-  justify-content: space-around;
-  align-items: center;
+  height: 78px;
 
   background: rgba(255,255,255,0.97);
 
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #e6eaf0;
 
-  z-index: 1000;
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+
+  z-index: 500;
+
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
 .bottom-nav button {
@@ -722,7 +722,7 @@ body {
 
   background: transparent;
 
-  color: #94a3b8;
+  color: #9aa5b1;
 
   display: flex;
 
@@ -730,72 +730,128 @@ body {
 
   align-items: center;
 
-  gap: 3px;
+  justify-content: center;
 
-  font-size: 18px;
+  gap: 4px;
+
+  cursor: pointer;
+
+  touch-action: manipulation;
+}
+
+.bottom-nav button span {
+  font-size: 23px;
+
+  line-height: 1;
 }
 
 .bottom-nav button small {
-  font-size: 9px;
+  font-size: 12px;
 }
 
 .bottom-nav button.active {
-  color: #075985;
+  color: #087fa7;
 }
 
 
-/* =====================================================
-   SMALL PHONES
-   ===================================================== */
+/* =========================================================
+   MOBILE
+   ========================================================= */
 
-@media (max-width: 380px) {
+@media (max-width: 480px) {
 
-  .recognition-container {
-    padding: 12px;
+  .app-header {
+    min-height: 125px;
 
-    padding-bottom: 100px;
+    padding: 24px 16px 20px;
+  }
+
+  .header-left h1 {
+    font-size: 24px;
+  }
+
+  .header-left p {
+    font-size: 13px;
+  }
+
+  .back-btn,
+  .header-badge {
+    width: 46px;
+    height: 46px;
+  }
+
+  .recognition-page {
+    padding: 20px 14px 25px;
+  }
+
+  .camera-card {
+    padding: 14px;
+
+    border-radius: 25px;
   }
 
   .camera-screen {
-    height: 300px;
-  }
+    height: 315px;
 
-  .camera-placeholder {
-    padding: 14px;
-  }
-
-  .camera-icon {
-    width: 50px;
-    height: 50px;
-
-    margin-bottom: 8px;
+    border-radius: 21px;
   }
 
   .camera-placeholder h2 {
-    font-size: 18px;
+    font-size: 23px;
   }
 
   .camera-placeholder p {
-    margin: 6px 0 12px;
+    font-size: 14px;
+
+    margin-top: 10px;
+    margin-bottom: 18px;
   }
 
   .start-camera-btn {
-    min-height: 43px;
+    min-width: 205px;
 
-    padding: 0 20px;
+    min-height: 55px;
+
+    font-size: 17px;
+  }
+
+  .detection-card,
+  .feature-card,
+  .engine-card {
+    padding: 20px;
+
+    border-radius: 24px;
+  }
+
+  .detection-header h2 {
+    font-size: 25px;
+  }
+
+  .hands-counter strong {
+    font-size: 25px;
+  }
+
+  .feature-header h2 {
+    font-size: 22px;
+  }
+
+  .engine-card {
+    display: block;
+  }
+
+  .engine-card h2 {
+    margin: 8px 0;
   }
 
 }
 
 
-/* =====================================================
-   VERY SMALL HEIGHT SCREENS
-   ===================================================== */
+/* VERY SMALL PHONES */
 
-@media (max-height: 700px) {
+@media (max-height: 650px) {
 
   .camera-screen {
     height: 285px;
   }
 
-   }
+     }
