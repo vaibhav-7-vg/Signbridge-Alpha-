@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+  <meta name="theme-color" content="#075985">
+
+  <title>SignBridge AI</title>
+
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- APP HEADER -->
+  <header class="app-header">
+
+    <div class="brand-area">
+      <div class="brand-logo">🤟</div>
+
+      <div>
+        <h1>SignBridge AI</h1>
+        <p>Connect Beyond Words</p>
+      </div>
+    </div>
+
+    <button class="profile-button" onclick="openProfile()">
+      👤
+    </button>
+
+  </header>
+
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- Welcome -->
+    <section class="welcome-section">
+
+      <p class="small-label">WELCOME</p>
+
+      <h2>Your voice.<br>
+          Your sign.<br>
+          Your connection.</h2>
+
+      <p class="welcome-description">
+        An ML-powered communication platform designed
+        for deaf and non-speaking individuals.
+      </p>
+
+    </section>
+
+
+    <!-- MAIN FEATURE GRID -->
+    <section class="feature-grid">
+
+      <!-- Communication -->
+      <div class="feature-card blue"
+           onclick="openPage('communicate.html')">
+
+        <div class="feature-icon">💬</div>
+
+        <div class="feature-text">
+          <h3>Communicate</h3>
+          <p>Sign, speak & text</p>
+        </div>
+
+        <span class="arrow">›</span>
+
+      </div>
+
+
+      <!-- Sign Recognition -->
+      <div class="feature-card purple"
+           onclick="openPage('sign-recognition.html')">
+
+        <div class="feature-icon">🧠</div>
+
+        <div class="feature-text">
+          <h3>Sign Recognition</h3>
+          <p>AI-powered recognition</p>
+        </div>
+
+        <span class="arrow">›</span>
+
+      </div>
+
+
+      <!-- Live Conversation -->
+      <div class="feature-card green"
+           onclick="openPage('live-conversation.html')">
+
+        <div class="feature-icon">👥</div>
+
+        <div class="feature-text">
+          <h3>Live Conversation</h3>
+          <p>Two-way communication</p>
+        </div>
+
+        <span class="arrow">›</span>
+
+      </div>
+
+
+      <!-- Quick Phrases -->
+      <div class="feature-card orange"
+           onclick="openPage('quick-phrases.html')">
+
+        <div class="feature-icon">⚡</div>
+
+        <div class="feature-text">
+          <h3>Quick Phrases</h3>
+          <p>Tap & communicate</p>
+        </div>
+
+        <span class="arrow">›</span>
+
+      </div>
+
+
+      <!-- Emergency -->
+      <div class="feature-card emergency"
+           onclick="openPage('emergency.html')">
+
+        <div class="feature-icon">🚨</div>
+
+        <div class="feature-text">
+          <h3>Emergency</h3>
+          <p>Get help fast</p>
+        </div>
+
+        <span class="arrow">›</span>
+
+      </div>
+
+
+      <!-- Learn ISL -->
+      <div class="feature-card cyan"
+           onclick="openPage('learn-isl.html')">
+
+        <div class="feature-icon">📚</div>
+
+        <div class="feature-text">
+          <h3>Learn ISL</h3>
+          <p>Practice & improve</p>
+        </div>
+
+        <span class="arrow">›</span>
+
+      </div>
+
+    </section>
+
+
+    <!-- ML STATUS -->
+    <section class="ml-status-card">
+
+      <div class="ml-status-icon">
+        🧠
+      </div>
+
+      <div class="ml-status-content">
+
+        <div class="status-title-row">
+
+          <h3>ML Recognition Engine</h3>
+
+          <span class="status-online">
+            ● Ready
+          </span>
+
+        </div>
+
+        <p>
+          Intelligent sign recognition system
+          for real-time communication.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- QUICK INFO -->
+    <section class="info-section">
+
+      <div class="info-card">
+
+        <span>🤟</span>
+
+        <div>
+          <strong>Indian Sign Language</strong>
+          <p>ISL recognition support</p>
+        </div>
+
+      </div>
+
+
+      <div class="info-card">
+
+        <span>🔊</span>
+
+        <div>
+          <strong>Speech & Text</strong>
+          <p>Two-way communication</p>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+
+    <button class="nav-item active"
+            onclick="goHome()">
+
+      <span>⌂</span>
+      <small>Home</small>
+
+    </button>
+
+
+    <button class="nav-item"
+            onclick="openPage('communicate.html')">
+
+      <span>💬</span>
+      <small>Communicate</small>
+
+    </button>
+
+
+    <button class="nav-item"
+            onclick="openPage('learn-isl.html')">
+
+      <span>📖</span>
+      <small>Learn</small>
+
+    </button>
+
+
+    <button class="nav-item"
+            onclick="openProfile()">
+
+      <span>👤</span>
+      <small>Profile</small>
+
+    </button>
+
+  </nav>
+
+
+  <script src="app.js"></script>
+
+</body>
+      </html>
